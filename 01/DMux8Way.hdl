@@ -1,6 +1,7 @@
 // This file is part of www.nand2tetris.org
 // and the book "The Elements of Computing Systems"
 // by Nisan and Schocken, MIT Press.
+// File name: projects/1/DMux8Way.hdl
 /**
  * 8-way demultiplexor:
  * [a, b, c, d, e, f, g, h] = [in, 0,  0,  0,  0,  0,  0,  0] if sel = 000
@@ -17,5 +18,11 @@ CHIP DMux8Way {
     OUT a, b, c, d, e, f, g, h;
 
     PARTS:
-    //// Replace this comment with your code.
+    DMux(in= in, sel= sel[2], a= dmuxABCD, b= dmuxEFGH);
+    DMux(in= dmuxABCD, sel= sel[1], a= dmuxAB, b= dmuxCD);
+    DMux(in= dmuxEFGH, sel= sel[1], a= dmuxEF, b= dmuxGH);
+    DMux(in= dmuxAB, sel= sel[0], a= a, b= b);
+    DMux(in= dmuxCD, sel= sel[0], a= c, b= d);
+    DMux(in= dmuxEF, sel= sel[0], a= e, b= f);
+    DMux(in= dmuxGH, sel= sel[0], a= g, b= h);
 }
