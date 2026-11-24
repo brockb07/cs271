@@ -1,6 +1,7 @@
 // This file is part of www.nand2tetris.org
 // and the book "The Elements of Computing Systems"
 // by Nisan and Schocken, MIT Press.
+// File name: projects/5/CPU.hdl
 /**
  * The Hack Central Processing unit (CPU).
  * Parses the binary code in the instruction input and executes it according to the
@@ -31,5 +32,27 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-	//// Replace this comment with your code.
+    Not(in= instruction[15], out= aType);
+    Or(a= aType, b= instruction[5], out= loadA);
+    And(a= instruction[15], b= instruction[4], out= loadD);
+    And(a= instruction[15], b= instruction[3], out= writeM);
+
+    And(a= instruction[2], b= ng, out= jumpNg);
+    And(a= instruction[1], b= zr, out= jumpZr);
+    Not(in= ng, out= notNg);
+    Not(in= zr, out= notZr);
+    And(a= notZr, b= notNg, out= ps);
+    And(a= instruction[0], b= ps, out= jumpPs);
+    Or(a= jumpNg, b= jumpZr, out= jumpNgZr);
+    Or(a= jumpNgZr, b= jumpPs, out= jump);
+    And(a= instruction[15], b= jump, out= loadPC);
+
+	Mux16(a= instruction, b= aluOut, sel= instruction[15], out= mux1);
+    ARegister(in= mux1, load= loadA, out= aOut, out[0..14]= addressM);
+    DRegister(in= aluOut, load= loadD, out= dOut);
+
+    Mux16(a= aOut, b= inM, sel= instruction[12], out= mux2);
+    ALU(x= dOut, y= mux2, zx= instruction[11], nx= instruction[10], zy= instruction[9], ny= instruction[8], f= instruction[7], no= instruction[6], out= aluOut, out= outM, zr= zr, ng= ng);
+    
+    PC(in= aOut, load= loadPC, inc= true, reset= reset, out[0..14]= pc);
 }
